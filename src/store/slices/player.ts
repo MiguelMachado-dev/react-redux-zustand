@@ -17,6 +17,8 @@ type Course = {
 
 interface playerState {
   course: Course;
+  currentModuleIndex: number;
+  currentLessonIndex: number;
 }
 
 const initialState: playerState = {
@@ -62,17 +64,23 @@ const initialState: playerState = {
       },
     ],
   },
+  currentModuleIndex: 0,
+  currentLessonIndex: 0,
 };
 
 const playerSlice = createSlice({
   name: "player",
   initialState,
   reducers: {
+    play: (state, action) => {
+      state.currentModuleIndex = action.payload[0];
+      state.currentLessonIndex = action.payload[1];
+    },
     // setProperty(state, action: PayloadAction<type>) {
     //   state.property = action.payload;
     // },
   },
 });
 
-// export const { } = playerSlice.actions;
+export const { play } = playerSlice.actions;
 export default playerSlice.reducer;
