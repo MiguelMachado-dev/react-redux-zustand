@@ -3,6 +3,7 @@ import {
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
+import { shallowEqual } from "react-redux";
 import { useAppSelector } from "..";
 import { api } from "../../lib/axios";
 
@@ -26,12 +27,14 @@ export interface PlayerState {
   course: Course | null;
   currentModuleIndex: number;
   currentLessonIndex: number;
+  isLoading: boolean;
 }
 
 const initialState: PlayerState = {
   course: null,
   currentModuleIndex: 0,
   currentLessonIndex: 0,
+  isLoading: true,
 };
 
 // Async actions (thunks)
@@ -70,8 +73,13 @@ export const playerSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(loadCourse.pending, (state) => {
+      state.isLoading = true;
+    });
+
     builder.addCase(loadCourse.fulfilled, (state, action) => {
       state.course = action.payload;
+      state.isLoading = true;
     });
   },
 });
@@ -81,11 +89,12 @@ export const { play, next } = playerSlice.actions;
 
 export const useCurrentLesson = () => {
   return useAppSelector((state) => {
-    const { currentLessonIndex, currentModuleIndex } = state.player;
+    const { course, currentLessonIndex, currentModuleIndex } = state.player;
 
-    const currentModule = state.player.course?.modules[currentModuleIndex];
+    const currentModule = course?.modules[currentModuleIndex];
     const currentLesson = currentModule?.lessons[currentLessonIndex];
 
+    // This creates a new object every time
     return { currentModule, currentLesson };
-  });
+  }, shallowEqual);
 };

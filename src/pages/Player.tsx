@@ -12,8 +12,8 @@ const Player = () => {
   const { currentLesson } = useCurrentLesson();
 
   useEffect(() => {
-    dispatch(loadCourse());
-  });
+    if (!modules) dispatch(loadCourse());
+  }, [dispatch, modules]);
 
   useEffect(() => {
     if (currentLesson) {

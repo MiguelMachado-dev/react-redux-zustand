@@ -12,12 +12,13 @@ interface ModuleProps {
 
 const Module = ({ title, amountOfLessons, moduleIndex }: ModuleProps) => {
   const dispatch = useAppDispatch();
-
-  const { currentModuleIndex, currentLessonIndex } = useAppSelector((state) => {
-    const { currentModuleIndex, currentLessonIndex } = state.player;
-
-    return { currentModuleIndex, currentLessonIndex };
-  });
+  const currentModuleIndex = useAppSelector(
+    (state) => state.player.currentModuleIndex,
+  );
+  const currentLessonIndex = useAppSelector(
+    (state) => state.player.currentLessonIndex,
+  );
+  const isCourseLoading = useAppSelector((state) => state.player.isLoading);
 
   const lessons = useAppSelector(
     (state) => state.player.course?.modules[moduleIndex].lessons,
@@ -26,6 +27,21 @@ const Module = ({ title, amountOfLessons, moduleIndex }: ModuleProps) => {
   const handlePlayLesson = (lessonIndex: number) => {
     dispatch(play([moduleIndex, lessonIndex]));
   };
+
+  if (isCourseLoading) {
+    return (
+      <div className="animate-pulse">
+        <div className="flex w-full items-center gap-3 bg-zinc-800 p-4">
+          <div className="h-10 w-10 rounded-full bg-zinc-950" />
+
+          <div className="flex flex-col gap-1 text-left">
+            <div className="h-4 w-32 rounded bg-zinc-700" />
+            <div className="h-3 w-20 rounded bg-zinc-700" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Collapsible.Root className="group" defaultOpen={moduleIndex === 0}>
