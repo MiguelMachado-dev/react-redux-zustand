@@ -1,73 +1,166 @@
-# React + TypeScript + Vite
+# React Redux vs Zustand Comparison
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A practical demonstration project showcasing how to migrate from Redux Toolkit to Zustand for state management in React applications. This project implements the same functionality using both state management solutions to highlight the differences in complexity, boilerplate, and developer experience.
 
-Currently, two official plugins are available:
+## 🎯 Project Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This application is a video course player with the following features:
+- Course modules and lessons navigation
+- Video playback interface
+- Progress tracking
+- Responsive design with Tailwind CSS
 
-## React Compiler
+The project demonstrates the same functionality implemented with:
+- **Redux Toolkit** (`/src/store/`) - Traditional Redux with modern tooling
+- **Zustand** (`/src/zustand-store/`) - Minimalist state management
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Quick Start
 
-## Expanding the ESLint configuration
+```bash
+# Install dependencies
+npm install
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Start development server
+npm run dev
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# Start mock API server (in another terminal)
+npm run server
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Run tests
+npm test
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📁 Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/          # React components
+├── lib/                # Utilities (axios config)
+├── pages/              # Page components
+├── store/              # Redux Toolkit implementation
+│   ├── slices/         # Redux slices
+│   └── index.ts        # Store configuration
+├── zustand-store/      # Zustand implementation
+│   ├── index.ts        # Zustand store
+│   └── store.spec.ts   # Tests
+└── styles/             # Global styles
+```
+
+## 🔧 State Management Comparison
+
+### Redux Toolkit Implementation
+
+**Location**: `/src/store/slices/player.ts`
+
+```typescript
+// Store setup with reducers and async thunks
+export const playerSlice = createSlice({
+  name: "player",
+  initialState,
+  reducers: {
+    play: (state, action: PayloadAction<[number, number]>) => {
+      state.currentModuleIndex = action.payload[0];
+      state.currentLessonIndex = action.payload[1];
+    },
+    next: (state) => { /* complex logic */ }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(loadCourse.pending, (state) => {
+      state.isLoading = true;
+    });
+    // ... more reducers
+  }
+});
+
+// Component usage
+const dispatch = useAppDispatch();
+const { course, isLoading } = useAppSelector(state => state.player);
+```
+
+### Zustand Implementation
+
+**Location**: `/src/zustand-store/index.ts`
+
+```typescript
+// Simple store setup with direct state and actions
+export const useStore = create<PlayerStore>((set, get) => ({
+  course: null,
+  isLoading: true,
+  
+  load: async () => {
+    set({ isLoading: true });
+    const { data } = await api.get("/courses/1");
+    set({ course: data, isLoading: false });
+  },
+  
+  play: (moduleAndLessonIndex) => {
+    set({
+      currentModuleIndex: moduleAndLessonIndex[0],
+      currentLessonIndex: moduleAndLessonIndex[1],
+    });
+  }
+}));
+
+// Component usage
+const course = useStore(state => state.course);
+const load = useStore(state => state.load);
+```
+
+## 📊 Key Differences
+
+| Aspect | Redux Toolkit | Zustand |
+|--------|---------------|---------|
+| **Boilerplate** | Requires slices, reducers, actions, thunks | Direct state and actions in one place |
+| **Setup** | Store configuration, providers, types | Simple create() call |
+| **Async Handling** | createAsyncThunk + extraReducers | Direct async actions |
+| **Type Safety** | Requires explicit type definitions | Built-in TypeScript inference |
+| **Bundle Size** | ~47KB | ~2.9KB |
+| **Learning Curve** | Moderate (Redux concepts) | Minimal (hooks-based) |
+| **DevTools** | Built-in Redux DevTools | Optional DevTools integration |
+
+## 🔄 Migration Benefits
+
+1. **Reduced Boilerplate**: ~60% less code for the same functionality
+2. **Simpler Mental Model**: No actions, reducers, or thunks to manage
+3. **Better TypeScript Support**: Automatic type inference
+4. **Performance**: No Provider wrapper, optimized re-renders
+5. **Bundle Size**: Significantly smaller footprint
+
+## 🧪 Testing
+
+Both implementations include comprehensive tests:
+- Redux tests: `/src/store/slices/player.spec.ts`
+- Zustand tests: `/src/zustand-store/store.spec.ts`
+
+Run tests with:
+```bash
+npm test
+```
+
+## 📚 Technologies Used
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Redux Toolkit** - State management (comparison)
+- **Zustand** - State management (demonstration)
+- **Axios** - HTTP client
+- **Vitest** - Testing framework
+- **JSON Server** - Mock API
+
+## 🎯 Learning Objectives
+
+This project helps developers understand:
+- How Redux Toolkit simplifies traditional Redux
+- The architectural differences between Redux and Zustand
+- Migration strategies from Redux to Zustand
+- Performance and developer experience trade-offs
+- When to choose each state management solution
+
+## 🤝 Contributing
+
+This is an educational project. Feel free to explore the code, run the examples, and compare the different approaches to state management.
