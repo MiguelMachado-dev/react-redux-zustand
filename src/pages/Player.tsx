@@ -1,11 +1,19 @@
 import { MessageCircle } from "lucide-react";
+import { useEffect } from "react";
 import Header from "../components/Header";
 import Module from "../components/Module";
 import Video from "../components/Video";
 import { useAppSelector } from "../store";
+import { useCurrentLesson } from "../store/slices/player";
 
 const Player = () => {
   const modules = useAppSelector((state) => state.player.course.modules);
+
+  const { currentLesson } = useCurrentLesson();
+
+  useEffect(() => {
+    document.title = `${currentLesson.title} | React Avançado`;
+  }, [currentLesson]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-zinc-950 text-zinc-50">
