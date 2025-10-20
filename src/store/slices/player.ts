@@ -70,7 +70,7 @@ const initialState: playerState = {
   currentLessonIndex: 0,
 };
 
-const playerSlice = createSlice({
+export const playerSlice = createSlice({
   name: "player",
   initialState,
   reducers: {
@@ -98,8 +98,8 @@ const playerSlice = createSlice({
   },
 });
 
+export const player = playerSlice.reducer;
 export const { play, next } = playerSlice.actions;
-export default playerSlice.reducer;
 
 export const useCurrentLesson = () => {
   return useAppSelector((state) => {
