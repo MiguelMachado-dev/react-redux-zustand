@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "json-server server.json -w -p 4000",
+    "server": "json-server server.json -p 4000",
     "test": "vitest run",
     "test:watch": "vitest"
   },

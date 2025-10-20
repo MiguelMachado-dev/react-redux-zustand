@@ -21,7 +21,7 @@ const Module = ({ title, amountOfLessons, moduleIndex }: ModuleProps) => {
   });
 
   const lessons = useAppSelector(
-    (state) => state.player.course.modules[moduleIndex].lessons,
+    (state) => state.player.course?.modules[moduleIndex].lessons,
   );
 
   const handlePlayLesson = (lessonIndex: number) => {
@@ -44,21 +44,22 @@ const Module = ({ title, amountOfLessons, moduleIndex }: ModuleProps) => {
       </Collapsible.Trigger>
       <Collapsible.Content>
         <nav className="relative flex flex-col gap-4 p-6">
-          {lessons.map((lesson, lessonIndex) => {
-            const isCurrent =
-              currentModuleIndex === moduleIndex &&
-              currentLessonIndex === lessonIndex;
+          {lessons &&
+            lessons.map((lesson, lessonIndex) => {
+              const isCurrent =
+                currentModuleIndex === moduleIndex &&
+                currentLessonIndex === lessonIndex;
 
-            return (
-              <Lesson
-                key={lesson.id}
-                title={lesson.title}
-                duration={lesson.duration}
-                isCurrent={isCurrent}
-                onPlay={() => handlePlayLesson(lessonIndex)}
-              />
-            );
-          })}
+              return (
+                <Lesson
+                  key={lesson.id}
+                  title={lesson.title}
+                  duration={lesson.duration}
+                  isCurrent={isCurrent}
+                  onPlay={() => handlePlayLesson(lessonIndex)}
+                />
+              );
+            })}
         </nav>
       </Collapsible.Content>
     </Collapsible.Root>
