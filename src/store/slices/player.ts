@@ -18,7 +18,7 @@ type Lesson = {
   duration: string;
 };
 
-type Course = {
+export type Course = {
   id: number;
   modules: Module[];
 };
@@ -79,7 +79,7 @@ export const playerSlice = createSlice({
 
     builder.addCase(loadCourse.fulfilled, (state, action) => {
       state.course = action.payload;
-      state.isLoading = true;
+      state.isLoading = false;
     });
   },
 });
