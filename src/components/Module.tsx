@@ -1,7 +1,6 @@
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { ChevronDown } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../store";
-import { play } from "../store/slices/player";
+import { useStore } from "../zustand-store";
 import Lesson from "./Lesson";
 
 interface ModuleProps {
@@ -11,24 +10,19 @@ interface ModuleProps {
 }
 
 const Module = ({ title, amountOfLessons, moduleIndex }: ModuleProps) => {
-  const dispatch = useAppDispatch();
-  const currentModuleIndex = useAppSelector(
-    (state) => state.player.currentModuleIndex,
+  const isLoading = useStore((state) => state.isLoading);
+  const currentModuleIndex = useStore((state) => state.currentModuleIndex);
+  const currentLessonIndex = useStore((state) => state.currentLessonIndex);
+  const lessons = useStore(
+    (state) => state.course?.modules[moduleIndex].lessons,
   );
-  const currentLessonIndex = useAppSelector(
-    (state) => state.player.currentLessonIndex,
-  );
-  const isCourseLoading = useAppSelector((state) => state.player.isLoading);
-
-  const lessons = useAppSelector(
-    (state) => state.player.course?.modules[moduleIndex].lessons,
-  );
+  const play = useStore((state) => state.play);
 
   const handlePlayLesson = (lessonIndex: number) => {
-    dispatch(play([moduleIndex, lessonIndex]));
+    play([moduleIndex, lessonIndex]);
   };
 
-  if (isCourseLoading) {
+  if (isLoading) {
     return (
       <div className="animate-pulse">
         <div className="flex w-full items-center gap-3 bg-zinc-800 p-4">

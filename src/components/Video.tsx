@@ -1,20 +1,19 @@
 import { Loader } from "lucide-react";
 import Player from "react-player";
-import { useAppDispatch, useAppSelector } from "../store";
-import { next, useCurrentLesson } from "../store/slices/player";
+import { useCurrentLesson, useStore } from "../zustand-store";
 
 const Video = () => {
-  const dispatch = useAppDispatch();
   const { currentLesson } = useCurrentLesson();
-  const isCourseLoading = useAppSelector((state) => state.player.isLoading);
+  const isLoading = useStore((s) => s.isLoading);
+  const next = useStore((s) => s.next);
 
   const handlePlayNext = () => {
-    dispatch(next());
+    next();
   };
 
   return (
     <div className="aspect-video w-full bg-zinc-950">
-      {isCourseLoading ? (
+      {isLoading ? (
         <div className="flex h-full items-center justify-center">
           <Loader className="h-6 w-6 animate-spin text-zinc-400" />
         </div>
@@ -25,7 +24,9 @@ const Video = () => {
           controls
           playing
           onEnded={handlePlayNext}
-          src={`https://youtu.be/${currentLesson?.id}`}
+          src={
+            currentLesson ? `https://youtu.be/${currentLesson.id}` : undefined
+          }
         />
       )}
     </div>
